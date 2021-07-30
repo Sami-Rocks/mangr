@@ -1,0 +1,68 @@
+@import "./colors";
+
+@mixin button($color: $dark) {
+  min-width: 150px;
+  padding: 0.71rem 1rem;
+}
+
+.primary-button {
+  @include button;
+}
+
+.secondary-button {
+  @include button($purple);
+}
+
+.link-button {
+  @include button($yellow);
+}
+.btn-content {
+  margin: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: fit-content;
+}
+.loading {
+  display: flex;
+  position: relative;
+  width: fit-content;
+  .ball-1,
+  .ball-2 {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: black;
+    position: relative;
+  }
+
+  .ball-1 {
+    animation: ball1Animation 1s infinite cubic-bezier(0.8, -0.5, 0.2, 1.4);
+  }
+  .ball-2 {
+    animation: ball2Animation 1s infinite cubic-bezier(0.8, -0.5, 0.2, 1.4);
+  }
+}
+
+@keyframes ball1Animation {
+  0% {
+    right: 0;
+  }
+  50% {
+    right: 10px;
+  }
+  100% {
+    right: 0;
+  }
+}
+@keyframes ball2Animation {
+  0% {
+    left: 0;
+  }
+  50% {
+    left: 10px;
+  }
+  100% {
+    left: 0;
+  }
+}
