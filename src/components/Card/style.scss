@@ -1,0 +1,61 @@
+@import './../../assets/styles/colors';
+
+@mixin card ($type_color: $purple){
+    width: auto;
+    background-color: white;
+    margin: .5rem 0;
+    border-radius: 5px;
+    text-align: left;
+    padding: .7rem;
+    border-bottom: 2px solid $type_color;
+    .card-type{
+        font-weight: 700;
+        color: $type_color;
+        font-size: .7rem;
+    }
+    .card-title{
+        font-size: 1.2rem;
+        font-weight: 800;
+        margin: .2rem 0;
+    }
+    .card-to{
+        display: flex;
+        .user{
+            background-color: $blue;
+            border: 2px solid white;
+            width: fit-content;
+            width: .8rem;
+            height: .8rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: 700;
+            font-size: .9rem;
+            padding: .3rem;
+            border-radius: 50%;
+            margin: .3rem 0;
+            margin-right: -7px;
+        }
+    }
+    .desc{
+        margin: .3rem 0;
+        color: $dark-grey;
+        font-size: .7rem;
+        display: flex;
+    }
+
+}
+
+.card {
+    @include card($purple)
+}
+.bug{
+    @include card($red)
+}
+.task{
+    @include card($blue)
+}
+.feature{
+    @include card($yellow)
+}

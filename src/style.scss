@@ -27,3 +27,19 @@ body {
   font-family: "Nunito", sans-serif;
   background-color: $background;
 }
+
+
+.backlog .section-title{
+  background-color: $blue;
+}
+.todo .section-title{
+  background-color: $purple;
+}
+
+.in-progress .section-title {
+  background-color: $yellow;
+}
+
+.done .section-title{
+  background-color: $green;
+}
