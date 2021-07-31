@@ -1,0 +1,43 @@
+form{
+    text-align: left;
+    margin: 1rem auto;
+    .inputGroup{
+        margin: 1.5rem 0;
+        label{
+            margin: .5rem .2rem;
+        }
+        input{
+            width: 95%;
+            font-size: 1rem;
+            padding: .7rem .7rem;
+            border-radius: 10px;
+            border: none;
+            background: $light-grey;
+            margin-top: .5rem;
+
+            &:focus{
+                border: 1px solid $blue;
+                outline: none;
+                box-shadow:  rgba(62, 204, 254, 0.2) 0px 2px 8px 0px;
+            }
+            &::placeholder{
+                color: rgba($color: $dark, $alpha: .3);
+            }
+        }
+    }
+    button{
+        margin: 0 auto;
+        width: 100%;
+    }
+    .error{
+        input{
+            border: 1px solid red !important;
+        }
+        p{
+            color: red;
+            font-size: .7rem;
+            margin: .2rem;
+        }
+    }
+    
+}

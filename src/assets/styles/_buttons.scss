@@ -1,8 +1,27 @@
 @import "./colors";
 
-@mixin button($color: $dark) {
+@mixin button($color: $blue) {
   min-width: 150px;
   padding: 0.71rem 1rem;
+  background-color: $color;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  box-shadow:  $color 0px 2px 8px 0px;
+  transition: .1s all ease-in-out;
+  cursor: pointer;
+  &:focus{
+    outline: none;
+    box-shadow: none;
+  }
+  &:disabled{
+    background-color: rgba($color: $color, $alpha: 0.5);
+    color: rgba($color: $color, $alpha: 0.3);
+    cursor: not-allowed;
+  }
+  &:hover{
+    background-color: rgba($color: $color, $alpha: 0.85);
+  }
 }
 
 .primary-button {
@@ -17,11 +36,14 @@
   @include button($yellow);
 }
 .btn-content {
+  font-size: 1.2rem;
   margin: auto;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 50px;
   width: fit-content;
+  color: white;
+  font-weight: 500;
 }
 .loading {
   display: flex;
@@ -32,8 +54,8 @@
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background-color: black;
     position: relative;
+    background-color: white;
   }
 
   .ball-1 {
@@ -46,23 +68,23 @@
 
 @keyframes ball1Animation {
   0% {
-    right: 0;
+    right: -20px;
   }
   50% {
-    right: 10px;
+    right: -10px;
   }
   100% {
-    right: 0;
+    right: -20px;
   }
 }
 @keyframes ball2Animation {
   0% {
-    left: 0;
+    left: 20px;
   }
   50% {
     left: 10px;
   }
   100% {
-    left: 0;
+    left: 20px;
   }
 }

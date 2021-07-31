@@ -2,13 +2,24 @@
 
 @import "./assets/styles/colors";
 @import "./assets/styles/buttons";
+@import "./assets/styles/form";
 
+*{
+  margin: 0;
+  font-size: 100%;
+  transition: .5s all ease-in-out;
+}
+h1{
+  font-size: 2.5rem;
+  font-weight: 900;
+}
 p,
 h1,
 h2,
 h3,
 span {
   color: $dark;
+  font-weight: 600;
 }
 
 body {

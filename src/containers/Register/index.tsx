@@ -23,27 +23,28 @@ const Register = () => {
 
 
     return(
-        <div className="register auth" onSubmit={handleSubmit(onSubmit)} >
+        <div className={`register auth `}  >
+            <h1>Create Account</h1>
             <form>
                 
                 {error ? <p className="error alert">{errorMessage}</p> : '' }
 
-                <div className="inputGroup">
+                <div className={`inputGroup ${errors ? "error" : '' }`}>
                     <label>Full Name</label><br/>
                     <input type="text" placeholder="John Doe" {...register('fullName', {required: true, minLength: 5})} />
                     {errors.fullName ? <p className='error'>Your full name should be more than 5 characters.</p> : ""}
                 </div>
-                <div className="inputGroup">
+                <div className={`inputGroup ${errors ? "error" : '' }`}>
                     <label>E-mail Address</label><br/>
                     <input type="text" placeholder="johndoe@gmail.com" {...register('email', {required: true, pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g})} />
                     {errors.email ? <p className='error'>Your email doesn't look right.</p> : ""}
                 </div>
-                <div className="inputGroup">
+                <div className={`inputGroup ${errors ? "error" : '' }`}>
                     <label>Password</label><br/>
                     <input type="password" {...register('password', {required: true, minLength: 4})} />
                     {errors.password ? <p className='error'>Your password should be more than 4 characters.</p> : ""}
                 </div>
-                <Buttons title="Register" loading={loading} type="submit" buttonClass="primary-button" clickEvent={onSubmit} />
+                <Buttons title="Register" loading={loading} type="submit" buttonClass="primary-button" clickEvent={handleSubmit(onSubmit)} />
             </form>
         </div>
     )
