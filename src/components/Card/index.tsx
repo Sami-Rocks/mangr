@@ -1,10 +1,11 @@
 import './style.scss'
 
+
 const Card = (props:any) =>{
     return(
-        <div className={`card ${props.type}`}>
+        <div  {...props} ref={props.innerRef} className={`card ${props.type}`}>
             <p className="card-type">Card Type</p>
-            <h3 className="card-title">Card Title</h3>
+            <h3 className="card-title">{props.title}</h3>
             <div className="card-to" >
                 <div className="user">D</div>
                 <div className="user">G</div>
