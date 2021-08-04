@@ -1,12 +1,18 @@
 import Card from '../../components/Card'
 import './style.scss'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import Buttons from '../../components/Buttons'
+import app from '../../helpers/firebase'
 
 const Dashboard = () =>{
     const todo = [1, 2, 3, 4, 5, 6]
     const backlog = [1, 2, 3, 4]
     const progress = [1, 2, 3]
     const done = [1, 2]
+
+    const logout = () =>{
+        app.auth().signOut()
+    }
     return(
         <div className="dashboard" >
             <header>
@@ -21,6 +27,9 @@ const Dashboard = () =>{
                             <option value="mercedes">Mercedes</option>
                             <option value="audi">Audi</option>
                         </select>
+                    </div>
+                    <div className="logout">
+                    <Buttons title="Logout" type="" buttonClass="secondary-button logout" clickEvent={logout} />
                     </div>
                 </div>
             </header>
@@ -57,7 +66,7 @@ const Dashboard = () =>{
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                         <Draggable draggableId="draggable-2" index={2}>
                                         {(provided, snapshot) => (
-                                            <Card title="Card Title" innerRef={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} type="bug" />
+                                            <Card title="Card Title" innerRef={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} type="task" />
                                         )}
                                         </Draggable>
                                     </div>
@@ -72,7 +81,7 @@ const Dashboard = () =>{
                                         <Draggable draggableId="draggable-3" index={3}>
                                         {(provided, snapshot) => (
                                             
-                                            <Card title="Card Title" innerRef={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} type="bug" />
+                                            <Card title="Card Title" innerRef={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} type="feature" />
                                         )}
                                         </Draggable>
                                     </div>
@@ -86,7 +95,7 @@ const Dashboard = () =>{
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                         <Draggable draggableId="draggable-4" index={4}>
                                         {(provided, snapshot) => (
-                                           <Card title="Card Title" innerRef={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} type="bug" />
+                                           <Card title="Card Title" innerRef={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} type="" />
                                         )}
                                         </Draggable>
                                     </div>

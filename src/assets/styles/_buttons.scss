@@ -7,19 +7,19 @@
   color: white;
   border: none;
   border-radius: 10px;
-  box-shadow:  $color 0px 2px 8px 0px;
-  transition: .1s all ease-in-out;
+  box-shadow: $color 0px 2px 8px 0px;
+  transition: 0.1s all ease-in-out;
   cursor: pointer;
-  &:focus{
+  &:focus {
     outline: none;
     box-shadow: none;
   }
-  &:disabled{
+  &:disabled {
     background-color: rgba($color: $color, $alpha: 0.5);
     color: rgba($color: $color, $alpha: 0.3);
     cursor: not-allowed;
   }
-  &:hover{
+  &:hover {
     background-color: rgba($color: $color, $alpha: 0.85);
   }
 }
@@ -45,6 +45,14 @@
   color: white;
   font-weight: 500;
 }
+.logout {
+  height: 30px;
+  padding: 0;
+  font-size: 10px;
+  .btn-content {
+    font-size: 1rem;
+  }
+}
 .loading {
   display: flex;
   position: relative;
@@ -68,23 +76,23 @@
 
 @keyframes ball1Animation {
   0% {
-    right: -20px;
+    right: 0px;
   }
   50% {
-    right: -10px;
+    right: 10px;
   }
   100% {
-    right: -20px;
+    right: 0px;
   }
 }
 @keyframes ball2Animation {
   0% {
-    left: 20px;
+    left: 0px;
   }
   50% {
-    left: 10px;
+    left: -10px;
   }
   100% {
-    left: 20px;
+    left: 0px;
   }
 }

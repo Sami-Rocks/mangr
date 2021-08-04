@@ -4,12 +4,12 @@
 @import "./assets/styles/buttons";
 @import "./assets/styles/form";
 
-*{
+* {
   margin: 0;
   font-size: 100%;
-  transition: .5s all ease-in-out;
+  transition: 0.3s all ease-in-out;
 }
-h1{
+h1 {
   font-size: 2.5rem;
   font-weight: 900;
 }
@@ -28,11 +28,10 @@ body {
   background-color: $background;
 }
 
-
-.backlog .section-title{
+.backlog .section-title {
   background-color: $blue;
 }
-.todo .section-title{
+.todo .section-title {
   background-color: $purple;
 }
 
@@ -40,6 +39,6 @@ body {
   background-color: $yellow;
 }
 
-.done .section-title{
+.done .section-title {
   background-color: $green;
 }

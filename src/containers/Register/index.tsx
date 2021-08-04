@@ -3,8 +3,13 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import Buttons from './../../components/Buttons'
 import './style.scss'
+import app from './../../helpers/firebase'
+import { useHistory } from "react-router-dom"
+import { useCallback } from "react"
+import firebase from "firebase"
+
 type FormData = {
-    fullName:string;
+    displayName:string;
     email:string;
     password:string;
 }
@@ -16,35 +21,51 @@ const Register = () => {
     const [errorMessage, setErrorMessage] = useState('')
     const [loading, setLoading] = useState(false)
 
-    const onSubmit =()=>{
+    
+    const history = useHistory()
+    
+    const onSubmit = useCallback(async (data:any)=>{
         setLoading(true)
-        console.log('on submit')
-    }
+        setErrorMessage('')
+        setError(false)
+        try{
+            await app.auth().createUserWithEmailAndPassword(data.email, data.password)
+            delete data.password
+            
+            let userData = firebase.firestore().collection('users').doc(data.email)
+            await userData.set(data)
+            history.push('/dashboard')
+            setLoading(false)
+        }catch(error){
+            setErrorMessage(error)
+            setError(true)
+            setLoading(false)
+        }
+    }, [history])
 
 
     return(
-        <div className={`register auth `}  >
-            <h1>Create Account</h1>
+        <div className="register auth" onSubmit={handleSubmit(onSubmit)} >
             <form>
                 
                 {error ? <p className="error alert">{errorMessage}</p> : '' }
 
-                <div className={`inputGroup ${errors ? "error" : '' }`}>
+                <div className={`inputGroup ${errors.displayName ? "error" : '' }`}>
                     <label>Full Name</label><br/>
-                    <input type="text" placeholder="John Doe" {...register('fullName', {required: true, minLength: 5})} />
-                    {errors.fullName ? <p className='error'>Your full name should be more than 5 characters.</p> : ""}
+                    <input type="text" placeholder="John Doe" {...register('displayName', {required: true, minLength: 5})} />
+                    {errors.displayName ? <p className='error'>Your full name should be more than 5 characters.</p> : ""}
                 </div>
-                <div className={`inputGroup ${errors ? "error" : '' }`}>
+                <div className={`inputGroup ${errors.email ? "error" : '' }`}>
                     <label>E-mail Address</label><br/>
                     <input type="text" placeholder="johndoe@gmail.com" {...register('email', {required: true, pattern: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g})} />
                     {errors.email ? <p className='error'>Your email doesn't look right.</p> : ""}
                 </div>
-                <div className={`inputGroup ${errors ? "error" : '' }`}>
+                <div className={`inputGroup ${errors.password ? "error" : '' }`}>
                     <label>Password</label><br/>
                     <input type="password" {...register('password', {required: true, minLength: 4})} />
                     {errors.password ? <p className='error'>Your password should be more than 4 characters.</p> : ""}
                 </div>
-                <Buttons title="Register" loading={loading} type="submit" buttonClass="primary-button" clickEvent={handleSubmit(onSubmit)} />
+                <Buttons title="Register" type="submit" loading={loading} buttonClass="primary-button" />
             </form>
         </div>
     )
