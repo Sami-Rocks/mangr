@@ -30,10 +30,66 @@
 
 .secondary-button {
   @include button($purple);
+  .btn-content {
+    font-size: 13px;
+  }
 }
 
 .link-button {
   @include button($yellow);
+}
+
+.add-button {
+  @include button();
+  width: 100%;
+  background: none;
+  box-shadow: none;
+  border: 1px dashed $blue;
+  .btn-content {
+    color: $blue;
+  }
+}
+
+@mixin color($color: $blue) {
+  border-color: $color;
+  .btn-content {
+    color: $color;
+  }
+  &:hover {
+    background-color: rgba($color: $color, $alpha: 0.85);
+    .btn-content {
+      color: white;
+    }
+  }
+}
+
+.blue {
+  @include color($blue);
+}
+.yellow {
+  @include color($yellow);
+}
+.green {
+  @include color($green);
+}
+.purple {
+  @include color($purple);
+}
+
+.delete-button {
+  @include button($red);
+  width: fit-content;
+  background: none !important;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  .btn-content {
+    font-size: 13px;
+    margin-top: 5px;
+    width: fit-content;
+    text-decoration: underline;
+    color: $red !important;
+  }
 }
 .btn-content {
   font-size: 1.2rem;

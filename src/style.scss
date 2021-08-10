@@ -29,16 +29,16 @@ body {
 }
 
 .backlog .section-title {
-  background-color: $blue;
+  color: $blue;
 }
 .todo .section-title {
-  background-color: $purple;
+  color: $purple;
 }
 
 .in-progress .section-title {
-  background-color: $yellow;
+  color: $yellow;
 }
 
 .done .section-title {
-  background-color: $green;
+  color: $green;
 }

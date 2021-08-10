@@ -3,30 +3,52 @@ import './style.scss'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import Buttons from '../../components/Buttons'
 import app from '../../helpers/firebase'
+import CreateProject from '../../components/CreateProject'
+import { useState } from 'react'
+import CreateCard from '../../components/CreateCard'
 
 const Dashboard = () =>{
-    const todo = [1, 2, 3, 4, 5, 6]
-    const backlog = [1, 2, 3, 4]
-    const progress = [1, 2, 3]
-    const done = [1, 2]
+
+    const [modal, toggleModal] = useState(false)
+    const [whichModal, setWhichModal] = useState('')
+
+    const handleModal= (which='')=>{
+        setWhichModal(which)
+        toggleModal(!modal)
+    }
 
     const logout = () =>{
         app.auth().signOut()
     }
     return(
         <div className="dashboard" >
+            {modal && 
+                (
+                    <div className="modal-container">
+                        <div className="modal">
+                            {whichModal === 'create' ? 
+                                <CreateProject handleModal={handleModal} /> :
+                                <CreateCard handleModal={handleModal} />
+                            }
+                        </div>
+                    </div>
+                )
+            }
             <header>
                 <div className="header-container">
                     <div className="logo">
                         <h1>LOGO</h1>
                     </div>
-                    <div className="inputGroup">
-                        <select name="cars" id="cars">
-                            <option value="">Select Project</option>
-                            <option value="saab">Saab</option>
-                            <option value="mercedes">Mercedes</option>
-                            <option value="audi">Audi</option>
-                        </select>
+                    <div className="projects">
+                        <div className="inputGroup">
+                            <select name="cars" id="cars">
+                                <option value="">Select Project</option>
+                                <option value="saab">Saab</option>
+                                <option value="mercedes">Mercedes</option>
+                                <option value="audi">Audi</option>
+                            </select>
+                        </div>
+                        <Buttons title="Create Project" type="button" buttonClass="delete-button" clickEvent={()=>handleModal('create')} />
                     </div>
                     <div className="logout">
                     <Buttons title="Logout" type="" buttonClass="secondary-button logout" clickEvent={logout} />
@@ -58,6 +80,7 @@ const Dashboard = () =>{
                                     </div>
                                 )}
                             </Droppable>
+                            <Buttons title="Add +" type="button" buttonClass="blue add-button logout" clickEvent={()=>handleModal('card')} />
                         </div>
                         <div className="section todo">
                             <div className="section-title">To Do</div>
@@ -72,6 +95,7 @@ const Dashboard = () =>{
                                     </div>
                                 )}
                             </Droppable>
+                            <Buttons title="Add +" type="button" buttonClass="purple add-button logout" clickEvent={()=>handleModal('card')} />
                         </div>
                         <div className="section in-progress">
                             <div className="section-title">In Progress</div>
@@ -87,6 +111,7 @@ const Dashboard = () =>{
                                     </div>
                                 )}
                             </Droppable>
+                            <Buttons title="Add +" type="button" buttonClass="yellow add-button logout" clickEvent={()=>handleModal('card')} />
                         </div>
                         <div className="section done">
                             <div className="section-title">Done</div>
@@ -101,6 +126,7 @@ const Dashboard = () =>{
                                     </div>
                                 )}
                             </Droppable>
+                            <Buttons title="Add +" type="button" buttonClass="green add-button logout" clickEvent={()=>handleModal('card')} />
                         </div>
                     </DragDropContext>
                 </div>

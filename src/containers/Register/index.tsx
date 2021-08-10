@@ -6,8 +6,8 @@ import './style.scss'
 import app from './../../helpers/firebase'
 import { useHistory } from "react-router-dom"
 import { useCallback } from "react"
-import firebase from "firebase"
-
+import { pick } from "lodash"
+import firebase from 'firebase'
 type FormData = {
     displayName:string;
     email:string;
@@ -29,13 +29,22 @@ const Register = () => {
         setErrorMessage('')
         setError(false)
         try{
-            await app.auth().createUserWithEmailAndPassword(data.email, data.password)
-            delete data.password
-            
-            let userData = firebase.firestore().collection('users').doc(data.email)
-            await userData.set(data)
-            history.push('/dashboard')
-            setLoading(false)
+            await app.auth().createUserWithEmailAndPassword(data.email, data.password).then(
+                (res)=>{
+                    return res.user?.updateProfile({
+                        displayName: data.displayName
+                    }).then(()=>{
+                        const data:any = app.auth().currentUser
+                        const userFields = ['email', 'displayName', 'uid', 'apiKey']
+                        
+                        const user = pick(data, userFields)
+                        let userData = firebase.firestore().collection('users').doc(user?.uid)
+                        userData.set(user)
+                        history.push('/dashboard')
+                        setLoading(false)
+                    })
+                }
+            )
         }catch(error){
             setErrorMessage(error)
             setError(true)
