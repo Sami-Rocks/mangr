@@ -6,20 +6,45 @@ import app from '../../helpers/firebase'
 import CreateProject from '../../components/CreateProject'
 import { useState } from 'react'
 import CreateCard from '../../components/CreateCard'
-
+import { useEffect } from 'react'
+import { truncate } from 'lodash'
 const Dashboard = () =>{
 
     const [modal, toggleModal] = useState(false)
     const [whichModal, setWhichModal] = useState('')
 
+    const [currentProject, setCurrentProject] = useState({})
+    const [projects, setProjects] = useState([])
+
     const handleModal= (which='')=>{
         setWhichModal(which)
         toggleModal(!modal)
+    }
+    const handleOptions = (e) =>{
+        setCurrentProject(projects[e.target.value])
     }
 
     const logout = () =>{
         app.auth().signOut()
     }
+
+    const desc = () => {
+        return truncate(currentProject.description ? currentProject.description : 'Friends, Romans, countrymen, lend me your ears: I come to bury Caesar, not to praise him. All the world’s a stage, and all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts. There are more things in heaven and earth, Horatio, than are dreamt of in your philosophy. To be, or not to be: that is the question', {'length': 175} )
+    }
+
+    useEffect(()=>{
+        const fetchData = async()=>{
+            const db = app.firestore()
+            const data = await db.collection("projects").get()
+            const pros = data.docs.map(item =>item.data()) 
+            setProjects(pros)
+            setCurrentProject(pros[pros.length - 1])
+        }
+        fetchData()
+
+        console.log(projects)
+    },[])
+    
     return(
         <div className="dashboard" >
             {modal && 
@@ -28,7 +53,7 @@ const Dashboard = () =>{
                         <div className="modal">
                             {whichModal === 'create' ? 
                                 <CreateProject handleModal={handleModal} /> :
-                                <CreateCard handleModal={handleModal} />
+                                <CreateCard project={currentProject} handleModal={handleModal} />
                             }
                         </div>
                     </div>
@@ -41,11 +66,11 @@ const Dashboard = () =>{
                     </div>
                     <div className="projects">
                         <div className="inputGroup">
-                            <select name="cars" id="cars">
+                            <select name="projects" id="projects" onChange={(e) =>handleOptions(e)} >
                                 <option value="">Select Project</option>
-                                <option value="saab">Saab</option>
-                                <option value="mercedes">Mercedes</option>
-                                <option value="audi">Audi</option>
+                                {projects.map((pro, idx) =>{
+                                    return(<option key={idx} value={idx}>{pro.projectName}</option>)
+                                })}
                             </select>
                         </div>
                         <Buttons title="Create Project" type="button" buttonClass="delete-button" clickEvent={()=>handleModal('create')} />
@@ -58,9 +83,9 @@ const Dashboard = () =>{
             <div className="top-board">
                 <div className="top-board-container">
                     <h1 className="project-title">
-                        Project Title
+                        {currentProject.projectName ? currentProject.projectName : 'Please create a project' }
                     </h1>
-                    <p className="project-description">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Et facilis iure porro ipsa sequi iusto culpa praesentium dolor quo, atque reprehenderit at temporibus omnis fuga eligendi, suscipit dolorem? Quae, ipsa!</p>
+                    <p className="project-description">{desc()}</p>
                 </div>
             </div>
             <div className="project-collaborators"></div>

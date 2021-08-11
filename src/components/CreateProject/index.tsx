@@ -22,11 +22,19 @@ const CreateProject = (props:any) =>{
 
     const [collaborators, setCollaborators] = useState([''])
 
-    const onSubmit = () =>{
+    const onSubmit = (data:any) =>{
+        data.collaborators = [...collaborators, (JSON.parse(user)).email]
+        data.owner = (JSON.parse(user)).email
         setLoading(!loading)
 
         let projectData = firebase.firestore().collection('projects').doc()
-        projectData.set([])
+        projectData.set(data).then((res)=>{
+            setLoading(!loading)
+            props.handleModal()
+        }).catch(err=>{
+            setLoading(!loading)
+            setErrorMessage('Failed. Try again!!')
+        })
     }
     const addField = () =>{
         setCollaborators([...collaborators , ''])
@@ -46,7 +54,7 @@ const CreateProject = (props:any) =>{
     return(
         <div className="create-project">
             <h1>Create Project</h1>
-            <form onSubmit={handleSubmit(onSubmit)} >
+            <form onSubmit={handleSubmit(onSubmit)} > 
                 <div className={`inputGroup ${errors.projectName ? "error" : '' }`}>
                         <label>Project Name</label><br/>
                         <input type="text" placeholder="Awesome project" {...register('projectName', {required: true, minLength: 3})} />
@@ -61,7 +69,7 @@ const CreateProject = (props:any) =>{
                         return(
                         <div className={`inputGroup ${errors.collaborators ? "error" : '' }`}>
                             <label>Collaborator</label><br/>
-                            <input type='text' name='collaborator' placeholder="" onChange={(e)=>updatateCol(idx, e)} />
+                            <input type='text' name='collaborator' placeholder="johndoe@gmail.com" onChange={(e)=>updatateCol(idx, e)} />
                             <Buttons title='Delete' type='button' buttonClass="delete-button" clickEvent={()=>removeField(idx)} />
                         </div>
                         )

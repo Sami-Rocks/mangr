@@ -15,42 +15,61 @@ const CreateCard = (props:any) =>{
     const [errorMessage, setErrorMessage] = useState('')
     const [loading, setLoading] = useState(false)
 
-    const onSubmit = () =>{
-        setLoading(!loading)
+    const [type, setType] = useState()
+    const [colla, setColla] = useState()
 
-        let projectData = firebase.firestore().collection('tacks').doc()
-        projectData.set([])
+    const onSubmit = (data:any) =>{
+        setLoading(!loading)
+        data.projectId = props.project.projectName
+        data.assignedTo = colla
+        data.type = type
+        let projectData = firebase.firestore().collection('tasks').doc()
+        projectData.set(data).then(
+            (res)=>{
+                setLoading(!loading)
+                props.handleModal()
+            }
+        ).catch(err=>{
+            console.log(err)
+        })
+    }
+
+    const handletype = (e:any)=>{
+        setColla(e.target.value)
+    }
+    const handleColla = (e:any)=>{
+        setColla(e.target.value)
     }
 
     return(
         <div className="create-card">
-            <h1>Create Project</h1>
+            <h1>Create Card</h1>
             <form onSubmit={handleSubmit(onSubmit)} >
                 <div className={`inputGroup ${errors.cardName ? "error" : '' }`}>
-                        <label>Project Name</label><br/>
-                        <input type="text" placeholder="Awesome project" {...register('cardName', {required: true, minLength: 3})} />
-                        {errors.cardName ? <p className='error'>Your full name should be more than 5 characters.</p> : ""}
+                        <label>Card's Title</label><br/>
+                        <input type="text" placeholder="Card Name" {...register('cardName', {required: true, minLength: 3})} />
+                        {errors.cardName ? <p className='error'>Your card's title should be more than 3 characters.</p> : ""}
                     </div>
                     <div className="inputGroup">
-                            <select name="cars" id="cars">
-                                <option value="">Select Project</option>
-                                <option value="saab">Saab</option>
-                                <option value="mercedes">Mercedes</option>
-                                <option value="audi">Audi</option>
+                        <label>Card Type</label>
+                            <select name="type" id="type" onChange={(e)=>handletype(e)} >
+                                <option value="task">Task</option>
+                                <option value="bug">Bug</option>
+                                <option value="feature">Feature</option>
                             </select>
                         </div>
                         <div className="inputGroup">
-                            <select name="cars" id="cars">
-                                <option value="">Select Project</option>
-                                <option value="saab">Saab</option>
-                                <option value="mercedes">Mercedes</option>
-                                <option value="audi">Audi</option>
+                            <label>Assign To</label>
+                            <select name="cars" id="cars" onChange={(e)=>handleColla(e)}>
+                                {props.project.collaborators.map((pro:any, idx:number) =>{
+                                    return(<option key={idx} value={idx}>{pro}</option>)
+                                })}
                             </select>
                         </div>
                     
                     <br/>
 
-                    <Buttons title="Create Project" type="submit" loading={loading} buttonClass="primary-button" />
+                    <Buttons title="Create Card" type="submit" loading={loading} buttonClass="primary-button" />
                     <div className="" style={{ display:'flex', justifyContent:'center' }} >
                         <Buttons title='Cancel' type='button' buttonClass="delete-button" clickEvent={()=>props.handleModal()} />
 
