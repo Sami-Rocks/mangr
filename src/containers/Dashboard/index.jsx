@@ -7,7 +7,7 @@ import CreateProject from '../../components/CreateProject'
 import { useState } from 'react'
 import CreateCard from '../../components/CreateCard'
 import { useEffect } from 'react'
-import { truncate } from 'lodash'
+import { indexOf, truncate } from 'lodash'
 const Dashboard = () =>{
 
     const [modal, toggleModal] = useState(false)
@@ -15,13 +15,31 @@ const Dashboard = () =>{
 
     const [currentProject, setCurrentProject] = useState({})
     const [projects, setProjects] = useState([])
+    const [cards, setCards] = useState([])
 
-    const handleModal= (which='')=>{
+    const [todo, setTodo] = useState([])
+    const [backlog, setBacklog] = useState([])
+    const [inProgress, setInProgress] = useState([])
+    const [done, setDone] = useState([])
+
+
+    const [cardProp, setCardProp] = useState()
+    const db = app.firestore()
+
+    const handleModal= (which='',cardCat = '')=>{
+        if(cardCat.length > 1){
+            setCardProp(cardCat)
+        }
         setWhichModal(which)
         toggleModal(!modal)
+        fetchData()
     }
     const handleOptions = (e) =>{
-        setCurrentProject(projects[e.target.value])
+        if(e.target.value !== ''){
+            setCurrentProject(projects[e.target.value])
+            fetchCards(currentProject.id)
+        }
+        
     }
 
     const logout = () =>{
@@ -32,17 +50,77 @@ const Dashboard = () =>{
         return truncate(currentProject.description ? currentProject.description : 'Friends, Romans, countrymen, lend me your ears: I come to bury Caesar, not to praise him. All the world’s a stage, and all the men and women merely players. They have their exits and their entrances; And one man in his time plays many parts. There are more things in heaven and earth, Horatio, than are dreamt of in your philosophy. To be, or not to be: that is the question', {'length': 175} )
     }
 
-    useEffect(()=>{
-        const fetchData = async()=>{
-            const db = app.firestore()
-            const data = await db.collection("projects").get()
+    const fetchData = async()=>{
+        const data = await db.collection("projects").orderBy('createdAt', 'asc').get()
+        // .then( (res)=>{
+        //     const data = res
             const pros = data.docs.map(item =>item.data()) 
+            const currentPros = pros[pros.length - 1]
             setProjects(pros)
-            setCurrentProject(pros[pros.length - 1])
-        }
-        fetchData()
 
-        console.log(projects)
+            setCurrentProject(currentPros)
+            await fetchCards(currentPros.id)
+        // } )
+    }
+
+    const addOrUpdate = (card, collection) => {
+        const index = indexOf(collection.map((doc) => doc.id),card.id)
+        if (index !== -1) {
+            collection.splice(index,1,card);
+        } else {
+            collection.push(card);
+        }
+    }
+
+    const fetchCards = async(id) =>{
+
+            const data = await db.collection("tasks").where('projectId', '==', id).get()
+            const categorizedCards = {
+                todo: [...todo],
+                backlog: [...backlog],
+                inprogress: [...inProgress],
+                done: [...done] 
+            }
+
+            for (const doc of data.docs) {
+                const card = doc.data();
+                addOrUpdate(card, categorizedCards[card.category])
+            }
+
+            setTodo(categorizedCards.todo)
+            setBacklog(categorizedCards.backlog)
+            setInProgress(categorizedCards.inprogress)
+            setDone(categorizedCards.done)
+
+
+            // const temp_cards = data.docs.map(item =>item.data()) 
+
+
+
+            // setCards(temp_cards)
+            // console.log(temp_cards)
+            
+            // temp_cards.forEach(card =>{
+            //     if(card.category === 'todo'){
+            //         setTodo([...todo, card])
+            //     }else if(card.category === 'backlog'){
+            //         setBacklog([...backlog, card])
+            //     }else if(card.category === 'inprogress'){
+            //         setInProgress([...inProgress, card])
+            //     }else{
+            //         setDone([...done, card])
+
+            //     }
+            // })
+            // console.table(done)
+            // console.table(backlog)
+            // console.table(inProgress)
+            // console.table(todo)
+    
+    }
+
+    useEffect(()=>{
+        fetchData()
     },[])
     
     return(
@@ -53,7 +131,7 @@ const Dashboard = () =>{
                         <div className="modal">
                             {whichModal === 'create' ? 
                                 <CreateProject handleModal={handleModal} /> :
-                                <CreateCard project={currentProject} handleModal={handleModal} />
+                                <CreateCard category={cardProp} project={currentProject} handleModal={handleModal} />
                             }
                         </div>
                     </div>
@@ -61,12 +139,12 @@ const Dashboard = () =>{
             }
             <header>
                 <div className="header-container">
-                    <div className="logo">
-                        <h1>LOGO</h1>
-                    </div>
+                    {/* <div className="logo">
+                        <h1>MANGR</h1>
+                    </div> */}
                     <div className="projects">
                         <div className="inputGroup">
-                            <select name="projects" id="projects" onChange={(e) =>handleOptions(e)} >
+                            <select name="projects" id="projects" value={projects.indexOf(currentProject)}  onChange={(e) =>handleOptions(e)} >
                                 <option value="">Select Project</option>
                                 {projects.map((pro, idx) =>{
                                     return(<option key={idx} value={idx}>{pro.projectName}</option>)
@@ -97,61 +175,86 @@ const Dashboard = () =>{
                             <Droppable droppableId ="droppable-0" index={0}>
                                 {(provided, snapshot) => (
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
-                                        <Draggable draggableId="draggable-1" index={1}>
-                                        {(provided, snapshot) => (
-                                            <Card title="Card Title" innerRef={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} type="bug" />
-                                        )}
-                                        </Draggable>
+
+                                        {backlog.map((card, index)=>{
+                                            return(
+                                                <Draggable key={index} draggableId={card.id} index={index}>
+                                                    {(provided, snapshot) => (
+                                                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
+                                                        <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
+                                                    </li>
+                                                    )}
+                                                </Draggable>
+                                            )
+                                        })}
+
                                     </div>
                                 )}
                             </Droppable>
-                            <Buttons title="Add +" type="button" buttonClass="blue add-button logout" clickEvent={()=>handleModal('card')} />
+                            <Buttons title="Add +" type="button" buttonClass="blue add-button logout" clickEvent={()=>handleModal('card', 'backlog')} />
                         </div>
                         <div className="section todo">
                             <div className="section-title">To Do</div>
                             <Droppable droppableId ="droppable-2" index={2}>
                                 {(provided, snapshot) => (
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
-                                        <Draggable draggableId="draggable-2" index={2}>
-                                        {(provided, snapshot) => (
-                                            <Card title="Card Title" innerRef={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} type="task" />
-                                        )}
-                                        </Draggable>
+                                        {todo.map((card, index)=>{
+                                            return(
+                                                <Draggable key={index} draggableId={card.id} index={index}>
+                                                    {(provided, snapshot) => (
+                                                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
+                                                        <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
+                                                    </li>
+                                                    )}
+                                                </Draggable>
+                                            )
+                                        })}
                                     </div>
                                 )}
                             </Droppable>
-                            <Buttons title="Add +" type="button" buttonClass="purple add-button logout" clickEvent={()=>handleModal('card')} />
+                            <Buttons title="Add +" type="button" buttonClass="purple add-button logout" clickEvent={()=>handleModal('card', 'todo')} />
                         </div>
                         <div className="section in-progress">
                             <div className="section-title">In Progress</div>
                             <Droppable droppableId ="droppable-3" index={3}>
                                 {(provided, snapshot) => (
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
-                                        <Draggable draggableId="draggable-3" index={3}>
-                                        {(provided, snapshot) => (
-                                            
-                                            <Card title="Card Title" innerRef={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} type="feature" />
-                                        )}
-                                        </Draggable>
+                                        {inProgress.map((card, index)=>{
+                                            return(
+                                                <Draggable key={index} draggableId={card.id} index={index}>
+                                                    {(provided, snapshot) => (
+                                                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
+                                                        <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
+                                                    </li>
+                                                    )}
+                                                </Draggable>
+                                            )
+                                        })}
                                     </div>
                                 )}
                             </Droppable>
-                            <Buttons title="Add +" type="button" buttonClass="yellow add-button logout" clickEvent={()=>handleModal('card')} />
+                            <Buttons title="Add +" type="button" buttonClass="yellow add-button logout" clickEvent={()=>handleModal('card', 'inprogress')} />
                         </div>
                         <div className="section done">
                             <div className="section-title">Done</div>
                             <Droppable droppableId ="droppable-4" index={4}>
                                 {(provided, snapshot) => (
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
-                                        <Draggable draggableId="draggable-4" index={4}>
-                                        {(provided, snapshot) => (
-                                           <Card title="Card Title" innerRef={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} type="" />
-                                        )}
-                                        </Draggable>
+                                        {done.map((card, index)=>{
+                                            return(
+                                                <Draggable key={index} draggableId={card.id} index={index}>
+                                                    {(provided, snapshot) => (
+                                                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
+                                                        <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
+                                                    </li>
+                                                    )}
+                                                </Draggable>
+                                            )
+                                        })}
                                     </div>
                                 )}
                             </Droppable>
-                            <Buttons title="Add +" type="button" buttonClass="green add-button logout" clickEvent={()=>handleModal('card')} />
+                            <Buttons title="Add +" type="button" buttonClass="green add-button logout" clickEvent={()=>handleModal('card', 'done')} />
                         </div>
                     </DragDropContext>
                 </div>

@@ -33,11 +33,13 @@
     overflow: hidden;
     .header-container {
       margin: 0 auto;
-      width: 70rem;
+      max-width: 70rem;
+      width: 100%;
       display: flex;
       justify-content: space-between;
       height: inherit;
       align-items: center;
+      overflow: hidden;
 
       .projects {
         display: flex;
@@ -46,6 +48,7 @@
       h1 {
         font-size: 1.5rem;
         font-weight: 800;
+        width: fit-content;
       }
 
       select {
@@ -68,7 +71,8 @@
     justify-content: center;
     .top-board-container {
       margin: 0 auto;
-      width: 70rem;
+      max-width: 70rem;
+      width: 100%;
     }
     h1 {
       font-weight: 900;
@@ -90,6 +94,9 @@
       .section {
         width: 20rem;
         padding: 10px;
+        li {
+          list-style: none;
+        }
         .section-title {
           font-size: 1rem;
           text-align: left;

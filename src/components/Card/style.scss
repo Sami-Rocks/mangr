@@ -22,19 +22,19 @@
   .card-to {
     display: flex;
     .user {
-      background-color: $blue;
+      background-color: $type_color;
       border: 2px solid white;
       width: fit-content;
-      width: 0.8rem;
+      width: fit-content;
       height: 0.8rem;
       display: flex;
       justify-content: center;
       align-items: center;
       color: white;
       font-weight: 700;
-      font-size: 0.9rem;
-      padding: 0.3rem;
-      border-radius: 50%;
+      font-size: 0.6rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 20px;
       margin: 0.3rem 0;
       margin-right: -7px;
     }

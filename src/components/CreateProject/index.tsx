@@ -1,4 +1,5 @@
 import firebase from "firebase"
+import { isEmpty } from "lodash"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import Buttons from "../Buttons"
@@ -23,11 +24,18 @@ const CreateProject = (props:any) =>{
     const [collaborators, setCollaborators] = useState([''])
 
     const onSubmit = (data:any) =>{
-        data.collaborators = [...collaborators, (JSON.parse(user)).email]
+        collaborators.forEach(item => {
+            if(!isEmpty(item)){
+                data.collaborators.push(item)
+            }
+        })
+        data.collaborators.push((JSON.parse(user)).email)
         data.owner = (JSON.parse(user)).email
         setLoading(!loading)
 
         let projectData = firebase.firestore().collection('projects').doc()
+        data.id = projectData.id
+        data.createdAt = new Date();
         projectData.set(data).then((res)=>{
             setLoading(!loading)
             props.handleModal()

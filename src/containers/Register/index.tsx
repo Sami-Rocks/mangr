@@ -1,13 +1,14 @@
 /* eslint-disable no-useless-escape */
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { useForm } from "react-hook-form"
 import Buttons from './../../components/Buttons'
 import './style.scss'
 import app from './../../helpers/firebase'
-import { useHistory } from "react-router-dom"
+import { Redirect, useHistory } from "react-router-dom"
 import { useCallback } from "react"
 import { pick } from "lodash"
 import firebase from 'firebase'
+import { AuthContext } from "../../helpers/Auth"
 type FormData = {
     displayName:string;
     email:string;
@@ -52,6 +53,14 @@ const Register = () => {
         }
     }, [history])
 
+    const {currentUser} = useContext(AuthContext)
+
+    if(currentUser){
+        localStorage.setItem('user', currentUser)
+        return(
+            <Redirect to="/dashboard" />
+        )
+    }
 
     return(
         <div className="register auth" onSubmit={handleSubmit(onSubmit)} >
