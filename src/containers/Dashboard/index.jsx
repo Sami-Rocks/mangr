@@ -19,12 +19,26 @@ const Dashboard = () =>{
 
     const [todo, setTodo] = useState([])
     const [backlog, setBacklog] = useState([])
-    const [inProgress, setInProgress] = useState([])
+    const [inprogress, setInProgress] = useState([])
     const [done, setDone] = useState([])
 
 
     const [cardProp, setCardProp] = useState()
     const db = app.firestore()
+
+    const categorizedCards = {
+        todo: [...todo],
+        backlog: [...backlog],
+        inprogress: [...inprogress],
+        done: [...done] 
+    }
+
+    const categorizedSetters = {
+        todo: setTodo,
+        backlog: setBacklog,
+        inprogress: setInProgress,
+        done: setDone 
+    }
 
     const handleModal= (which='',cardCat = '')=>{
         if(cardCat.length > 1){
@@ -78,7 +92,7 @@ const Dashboard = () =>{
             const categorizedCards = {
                 todo: [...todo],
                 backlog: [...backlog],
-                inprogress: [...inProgress],
+                inprogress: [...inprogress],
                 done: [...done] 
             }
 
@@ -92,31 +106,29 @@ const Dashboard = () =>{
             setInProgress(categorizedCards.inprogress)
             setDone(categorizedCards.done)
 
-
-            // const temp_cards = data.docs.map(item =>item.data()) 
-
-
-
-            // setCards(temp_cards)
-            // console.log(temp_cards)
-            
-            // temp_cards.forEach(card =>{
-            //     if(card.category === 'todo'){
-            //         setTodo([...todo, card])
-            //     }else if(card.category === 'backlog'){
-            //         setBacklog([...backlog, card])
-            //     }else if(card.category === 'inprogress'){
-            //         setInProgress([...inProgress, card])
-            //     }else{
-            //         setDone([...done, card])
-
-            //     }
-            // })
-            // console.table(done)
-            // console.table(backlog)
-            // console.table(inProgress)
-            // console.table(todo)
     
+    }
+
+    const moveCardOnSameList = (source, destination)=>{
+        const items = [...categorizedCards[source.droppableId]]
+        console.log(items)
+        const [reordered] = items.splice(source.index, 1)
+        items.splice(destination.index, 1, reordered)
+        //here
+        console.log(items)
+        categorizedSetters[source.droppableId](items);
+    }
+
+    const handleDrag = (res) =>{
+        console.log(res)
+        if(!res.destination) return;
+        const source = res.source
+        const destination = res.destination
+
+       if(source.droppableId === destination.droppableId){
+           moveCardOnSameList(source, destination)
+       }
+
     }
 
     useEffect(()=>{
@@ -169,10 +181,10 @@ const Dashboard = () =>{
             <div className="project-collaborators"></div>
             <div className="board">
                 <div className="board-container">
-                    <DragDropContext>
+                    <DragDropContext onDragEnd={handleDrag}>
                         <div className="section backlog">
                             <div className="section-title">Backlog</div>
-                            <Droppable droppableId ="droppable-0" index={0}>
+                            <Droppable droppableId ="backlog" index={0}>
                                 {(provided, snapshot) => (
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
 
@@ -187,7 +199,7 @@ const Dashboard = () =>{
                                                 </Draggable>
                                             )
                                         })}
-
+                                        {provided.placeholder}
                                     </div>
                                 )}
                             </Droppable>
@@ -195,7 +207,7 @@ const Dashboard = () =>{
                         </div>
                         <div className="section todo">
                             <div className="section-title">To Do</div>
-                            <Droppable droppableId ="droppable-2" index={2}>
+                            <Droppable droppableId ="todo" index={2}>
                                 {(provided, snapshot) => (
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                         {todo.map((card, index)=>{
@@ -209,6 +221,7 @@ const Dashboard = () =>{
                                                 </Draggable>
                                             )
                                         })}
+                                        {provided.placeholder}
                                     </div>
                                 )}
                             </Droppable>
@@ -216,10 +229,10 @@ const Dashboard = () =>{
                         </div>
                         <div className="section in-progress">
                             <div className="section-title">In Progress</div>
-                            <Droppable droppableId ="droppable-3" index={3}>
+                            <Droppable droppableId ="inprogress" index={3}>
                                 {(provided, snapshot) => (
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
-                                        {inProgress.map((card, index)=>{
+                                        {inprogress.map((card, index)=>{
                                             return(
                                                 <Draggable key={index} draggableId={card.id} index={index}>
                                                     {(provided, snapshot) => (
@@ -230,6 +243,7 @@ const Dashboard = () =>{
                                                 </Draggable>
                                             )
                                         })}
+                                        {provided.placeholder}
                                     </div>
                                 )}
                             </Droppable>
@@ -237,7 +251,7 @@ const Dashboard = () =>{
                         </div>
                         <div className="section done">
                             <div className="section-title">Done</div>
-                            <Droppable droppableId ="droppable-4" index={4}>
+                            <Droppable droppableId ="done" index={4}>
                                 {(provided, snapshot) => (
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                         {done.map((card, index)=>{
@@ -251,6 +265,7 @@ const Dashboard = () =>{
                                                 </Draggable>
                                             )
                                         })}
+                                        {provided.placeholder}
                                     </div>
                                 )}
                             </Droppable>
