@@ -111,11 +111,10 @@ const Dashboard = () =>{
 
     const moveCardOnSameList = (source, destination)=>{
         const items = [...categorizedCards[source.droppableId]]
-        console.log(items)
+
         const [reordered] = items.splice(source.index, 1)
-        items.splice(destination.index, 1, reordered)
-        //here
-        console.log(items)
+        items.splice(destination.index, 0, reordered)
+        // //here
         categorizedSetters[source.droppableId](items);
     }
 
@@ -190,7 +189,7 @@ const Dashboard = () =>{
 
                                         {backlog.map((card, index)=>{
                                             return(
-                                                <Draggable key={index} draggableId={card.id} index={index}>
+                                                <Draggable key={card.id} draggableId={card.id} index={index}>
                                                     {(provided, snapshot) => (
                                                         <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                                         <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
@@ -212,7 +211,7 @@ const Dashboard = () =>{
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                         {todo.map((card, index)=>{
                                             return(
-                                                <Draggable key={index} draggableId={card.id} index={index}>
+                                                <Draggable key={card.id} draggableId={card.id} index={index}>
                                                     {(provided, snapshot) => (
                                                         <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                                         <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
@@ -234,7 +233,7 @@ const Dashboard = () =>{
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                         {inprogress.map((card, index)=>{
                                             return(
-                                                <Draggable key={index} draggableId={card.id} index={index}>
+                                                <Draggable key={card.id} draggableId={card.id} index={index}>
                                                     {(provided, snapshot) => (
                                                         <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                                         <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
@@ -256,7 +255,7 @@ const Dashboard = () =>{
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                         {done.map((card, index)=>{
                                             return(
-                                                <Draggable key={index} draggableId={card.id} index={index}>
+                                                <Draggable key={card.id} draggableId={card.id} index={index}>
                                                     {(provided, snapshot) => (
                                                         <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                                         <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
