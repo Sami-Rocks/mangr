@@ -41,7 +41,8 @@
 
 .add-button {
   @include button();
-  width: 100%;
+  width: 120px;
+  margin-top: 2rem;
   background: none;
   box-shadow: none;
   border: 1px dashed $blue;

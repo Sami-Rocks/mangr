@@ -34,6 +34,7 @@ const CreateCard = (props:any) =>{
             (res)=>{
                 setLoading(!loading)
                 props.handleModal()
+                props.fetchData()
             }
         ).catch(err=>{
             console.log(err)

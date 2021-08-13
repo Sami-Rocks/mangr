@@ -8,22 +8,19 @@ import { useState } from 'react'
 import CreateCard from '../../components/CreateCard'
 import { useEffect } from 'react'
 import { indexOf, truncate } from 'lodash'
+import CardView from '../../components/CardView/Index'
 const Dashboard = () =>{
 
     const [modal, toggleModal] = useState(false)
     const [whichModal, setWhichModal] = useState('')
-
     const [currentProject, setCurrentProject] = useState({})
     const [projects, setProjects] = useState([])
-    const [cards, setCards] = useState([])
-
     const [todo, setTodo] = useState([])
     const [backlog, setBacklog] = useState([])
     const [inprogress, setInProgress] = useState([])
     const [done, setDone] = useState([])
-
-
     const [cardProp, setCardProp] = useState()
+    const [cad, setCad] = useState()
     const db = app.firestore()
 
     const categorizedCards = {
@@ -40,21 +37,23 @@ const Dashboard = () =>{
         done: setDone 
     }
 
-    const handleModal= (which='',cardCat = '')=>{
+    const handleModal= (which='',cardCat = '', card=[])=>{
         if(cardCat.length > 1){
             setCardProp(cardCat)
         }
         setWhichModal(which)
+        setCad(card)
         toggleModal(!modal)
-        fetchData()
     }
     const handleOptions = (e) =>{
         if(e.target.value !== ''){
-            setCurrentProject(projects[e.target.value])
-            fetchCards(currentProject.id)
+            const pro = projects.find(item=> item.id === e.target.value)
+            setCurrentProject(pro)
+            localStorage.setItem('currentProject', JSON.stringify(pro))
+            fetchCards(pro.id)
         }
-        
     }
+    const cookieProject = JSON.parse(localStorage.getItem('currentProject'))
 
     const logout = () =>{
         app.auth().signOut()
@@ -66,15 +65,17 @@ const Dashboard = () =>{
 
     const fetchData = async()=>{
         const data = await db.collection("projects").orderBy('createdAt', 'asc').get()
-        // .then( (res)=>{
-        //     const data = res
-            const pros = data.docs.map(item =>item.data()) 
-            const currentPros = pros[pros.length - 1]
-            setProjects(pros)
+        const pros = data.docs.map(item =>item.data()) 
+        const currentPros = pros[pros.length - 1]
+        setProjects(pros)
 
+        if(!cookieProject){
             setCurrentProject(currentPros)
+            localStorage.setItem('currentProject', JSON.stringify(currentPros))
             await fetchCards(currentPros.id)
-        // } )
+        }else{
+            await fetchCards(cookieProject.id)
+        }
     }
 
     const addOrUpdate = (card, collection) => {
@@ -89,21 +90,22 @@ const Dashboard = () =>{
     const fetchCards = async(id) =>{
 
             const data = await db.collection("tasks").where('projectId', '==', id).get()
-            const categorizedCards = {
-                todo: [...todo],
-                backlog: [...backlog],
-                inprogress: [...inprogress],
-                done: [...done] 
-            }
 
+            const categorizedCards = {
+                todo: [],
+                backlog: [],
+                inprogress: [],
+                done: [] 
+            }
+            
             for (const doc of data.docs) {
                 const card = doc.data();
                 addOrUpdate(card, categorizedCards[card.category])
             }
-
+            
             setTodo(categorizedCards.todo)
             setBacklog(categorizedCards.backlog)
-            setInProgress(categorizedCards.inprogress)
+            setInProgress(categorizedCards.inprogress) 
             setDone(categorizedCards.done)
 
     
@@ -114,23 +116,53 @@ const Dashboard = () =>{
 
         const [reordered] = items.splice(source.index, 1)
         items.splice(destination.index, 0, reordered)
-        // //here
+
         categorizedSetters[source.droppableId](items);
+    }
+    const moveCardOnDifferentList = async(source, destination)=>{
+        const sourceItems = [...categorizedCards[source.droppableId]]
+        const destinationItems = [...categorizedCards[destination.droppableId]]
+
+        const [reordered] = sourceItems.splice(source.index, 1)
+        destinationItems.splice(destination.index, 0, reordered)
+        
+        categorizedSetters[destination.droppableId](destinationItems);
+        categorizedSetters[source.droppableId](sourceItems);
+        
+        db.collection("tasks").doc(reordered.id).set({
+            category: destination.droppableId
+        }, { merge : true})
+        
     }
 
     const handleDrag = (res) =>{
-        console.log(res)
         if(!res.destination) return;
         const source = res.source
         const destination = res.destination
 
        if(source.droppableId === destination.droppableId){
            moveCardOnSameList(source, destination)
+       }else{
+           moveCardOnDifferentList(source, destination)
        }
 
     }
 
+    const openModal = () =>{
+        if(whichModal === 'create'){
+            return(<CreateProject handleModal={handleModal} fetchData ={fetchData}/>)
+        }else if(whichModal === 'card'){
+            return(<CreateCard category={cardProp} project={currentProject} handleModal={handleModal} fetchData ={fetchData} />)
+        }else if(whichModal === ''){
+            return(<CardView handleModal={handleModal} card={cad} />)
+        }
+    }
+    
     useEffect(()=>{
+        if(cookieProject){
+            localStorage.setItem('currentProject', JSON.stringify(cookieProject))
+            setCurrentProject(cookieProject)
+        }
         fetchData()
     },[])
     
@@ -140,29 +172,31 @@ const Dashboard = () =>{
                 (
                     <div className="modal-container">
                         <div className="modal">
-                            {whichModal === 'create' ? 
-                                <CreateProject handleModal={handleModal} /> :
-                                <CreateCard category={cardProp} project={currentProject} handleModal={handleModal} />
-                            }
+                            {openModal()}
+                            {/* {whichModal === 'create' ? 
+                                <CreateProject handleModal={handleModal} fetchData ={fetchData}/> :
+                                <CreateCard category={cardProp} project={currentProject} handleModal={handleModal} fetchData ={fetchData} />
+                            } */}
                         </div>
                     </div>
                 )
             }
             <header>
                 <div className="header-container">
-                    {/* <div className="logo">
+                    <div className="logo">
                         <h1>MANGR</h1>
-                    </div> */}
+                        {/* <p>Hi, {user.displayName}</p> */}
+                    </div>
                     <div className="projects">
                         <div className="inputGroup">
-                            <select name="projects" id="projects" value={projects.indexOf(currentProject)}  onChange={(e) =>handleOptions(e)} >
+                            <select name="projects" id="projects" value={currentProject.id}  onChange={(e) =>handleOptions(e)} >
                                 <option value="">Select Project</option>
                                 {projects.map((pro, idx) =>{
-                                    return(<option key={idx} value={idx}>{pro.projectName}</option>)
+                                    return(<option key={idx} value={pro.id}>{pro.projectName}</option>)
                                 })}
                             </select>
+                                <Buttons title="Create Project" type="button" buttonClass="delete-button" clickEvent={()=>handleModal('create')} />
                         </div>
-                        <Buttons title="Create Project" type="button" buttonClass="delete-button" clickEvent={()=>handleModal('create')} />
                     </div>
                     <div className="logout">
                     <Buttons title="Logout" type="" buttonClass="secondary-button logout" clickEvent={logout} />
@@ -175,6 +209,7 @@ const Dashboard = () =>{
                         {currentProject.projectName ? currentProject.projectName : 'Please create a project' }
                     </h1>
                     <p className="project-description">{desc()}</p>
+                    <Buttons title="Add Task +" type="button" buttonClass="blue add-button logout" clickEvent={()=>handleModal('card', 'backlog')} />
                 </div>
             </div>
             <div className="project-collaborators"></div>
@@ -183,15 +218,16 @@ const Dashboard = () =>{
                     <DragDropContext onDragEnd={handleDrag}>
                         <div className="section backlog">
                             <div className="section-title">Backlog</div>
+                            
                             <Droppable droppableId ="backlog" index={0}>
                                 {(provided, snapshot) => (
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
 
                                         {backlog.map((card, index)=>{
                                             return(
-                                                <Draggable key={card.id} draggableId={card.id} index={index}>
+                                                <Draggable  key={card.id} draggableId={card.id} index={index}>
                                                     {(provided, snapshot) => (
-                                                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
+                                                        <li ref={provided.innerRef} {...provided.draggableProps} onClick={()=>handleModal('', '',card)} {...provided.dragHandleProps} >
                                                         <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
                                                     </li>
                                                     )}
@@ -202,7 +238,7 @@ const Dashboard = () =>{
                                     </div>
                                 )}
                             </Droppable>
-                            <Buttons title="Add +" type="button" buttonClass="blue add-button logout" clickEvent={()=>handleModal('card', 'backlog')} />
+                            
                         </div>
                         <div className="section todo">
                             <div className="section-title">To Do</div>
@@ -211,9 +247,9 @@ const Dashboard = () =>{
                                     <div className="section-content" ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
                                         {todo.map((card, index)=>{
                                             return(
-                                                <Draggable key={card.id} draggableId={card.id} index={index}>
+                                                <Draggable key={card.id} draggableId={card.id} index={index}  >
                                                     {(provided, snapshot) => (
-                                                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
+                                                        <li ref={provided.innerRef} {...provided.draggableProps} onClick={()=>handleModal('', '',card)} {...provided.dragHandleProps} >
                                                         <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
                                                     </li>
                                                     )}
@@ -224,7 +260,7 @@ const Dashboard = () =>{
                                     </div>
                                 )}
                             </Droppable>
-                            <Buttons title="Add +" type="button" buttonClass="purple add-button logout" clickEvent={()=>handleModal('card', 'todo')} />
+                            {/* <Buttons title="Add +" type="button" buttonClass="purple add-button logout" clickEvent={()=>handleModal('card', 'todo')} /> */}
                         </div>
                         <div className="section in-progress">
                             <div className="section-title">In Progress</div>
@@ -235,7 +271,7 @@ const Dashboard = () =>{
                                             return(
                                                 <Draggable key={card.id} draggableId={card.id} index={index}>
                                                     {(provided, snapshot) => (
-                                                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
+                                                        <li ref={provided.innerRef} {...provided.draggableProps} onClick={()=>handleModal('', '',card)} {...provided.dragHandleProps} >
                                                         <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
                                                     </li>
                                                     )}
@@ -246,7 +282,7 @@ const Dashboard = () =>{
                                     </div>
                                 )}
                             </Droppable>
-                            <Buttons title="Add +" type="button" buttonClass="yellow add-button logout" clickEvent={()=>handleModal('card', 'inprogress')} />
+                            {/* <Buttons title="Add +" type="button" buttonClass="yellow add-button logout" clickEvent={()=>handleModal('card', 'inprogress')} /> */}
                         </div>
                         <div className="section done">
                             <div className="section-title">Done</div>
@@ -257,7 +293,7 @@ const Dashboard = () =>{
                                             return(
                                                 <Draggable key={card.id} draggableId={card.id} index={index}>
                                                     {(provided, snapshot) => (
-                                                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} >
+                                                        <li ref={provided.innerRef} {...provided.draggableProps} onClick={()=>handleModal('', '',card)}{...provided.dragHandleProps} >
                                                         <Card title={card.cardName} description={card.description}  assignedTo={card.assignedTo} type={card.type} />
                                                     </li>
                                                     )}
@@ -268,7 +304,7 @@ const Dashboard = () =>{
                                     </div>
                                 )}
                             </Droppable>
-                            <Buttons title="Add +" type="button" buttonClass="green add-button logout" clickEvent={()=>handleModal('card', 'done')} />
+                            {/* <Buttons title="Add +" type="button" buttonClass="green add-button logout" clickEvent={()=>handleModal('card', 'done')} /> */}
                         </div>
                     </DragDropContext>
                 </div>
