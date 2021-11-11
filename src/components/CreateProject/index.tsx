@@ -24,6 +24,7 @@ const CreateProject = (props:any) =>{
     const [collaborators, setCollaborators] = useState([''])
 
     const onSubmit = (data:any) =>{
+        data.collaborators = []
         collaborators.forEach(item => {
             if(!isEmpty(item)){
                 data.collaborators.push(item)
@@ -77,7 +78,7 @@ const CreateProject = (props:any) =>{
                         return(
                         <div className={`inputGroup ${errors.collaborators ? "error" : '' }`}>
                             <label>Collaborator</label><br/>
-                            <input type='text' name='collaborator' placeholder="johndoe@gmail.com" onChange={(e)=>updatateCol(idx, e)} />
+                            <input type='text' name='collaborator' placeholder="" onChange={(e)=>updatateCol(idx, e)} />
                             <Buttons title='Delete' type='button' buttonClass="delete-button" clickEvent={()=>removeField(idx)} />
                         </div>
                         )

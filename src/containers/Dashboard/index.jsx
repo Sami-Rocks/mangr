@@ -21,6 +21,8 @@ const Dashboard = () =>{
     const [done, setDone] = useState([])
     const [cardProp, setCardProp] = useState()
     const [cad, setCad] = useState()
+
+    const [user, setUser] = useState({})
     const db = app.firestore()
 
     const categorizedCards = {
@@ -57,6 +59,7 @@ const Dashboard = () =>{
 
     const logout = () =>{
         app.auth().signOut()
+        localStorage.clear()
     }
 
     const desc = () => {
@@ -65,14 +68,22 @@ const Dashboard = () =>{
 
     const fetchData = async()=>{
         const data = await db.collection("projects").orderBy('createdAt', 'asc').get()
-        const pros = data.docs.map(item =>item.data()) 
-        const currentPros = pros[pros.length - 1]
+        let pros = data.docs.map(item =>item.data()) 
+        const email = await JSON.parse(localStorage.getItem('user'))
+        pros = pros.filter(items => items.collaborators.includes(email.email)) 
+        
+        let currentPros = null
+        if(pros.length > 0){
+            currentPros = pros[pros.length - 1]
+        } 
         setProjects(pros)
 
         if(!cookieProject){
-            setCurrentProject(currentPros)
-            localStorage.setItem('currentProject', JSON.stringify(currentPros))
-            await fetchCards(currentPros.id)
+            if(currentPros !== null){
+                setCurrentProject(currentPros)
+                localStorage.setItem('currentProject', JSON.stringify(currentPros))
+                await fetchCards(currentPros.id)
+            }
         }else{
             await fetchCards(cookieProject.id)
         }
@@ -159,12 +170,17 @@ const Dashboard = () =>{
     }
     
     useEffect(()=>{
+        setUser(JSON.parse(localStorage.getItem('user')))
         if(cookieProject){
             localStorage.setItem('currentProject', JSON.stringify(cookieProject))
             setCurrentProject(cookieProject)
         }
         fetchData()
     },[])
+
+    useEffect(()=>{
+        fetchData()
+    },[modal])
     
     return(
         <div className="dashboard" >
@@ -185,7 +201,7 @@ const Dashboard = () =>{
                 <div className="header-container">
                     <div className="logo">
                         <h1>MANGR</h1>
-                        {/* <p>Hi, {user.displayName}</p> */}
+                        <p>Hi, {user.displayName}</p>
                     </div>
                     <div className="projects">
                         <div className="inputGroup">

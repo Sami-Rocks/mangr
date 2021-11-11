@@ -30,7 +30,7 @@ const LogIn = () => {
             history.push('/dashboard')
             setLoading(false)
         }catch(error){
-            setErrorMessage(error)
+            setErrorMessage( JSON.stringify(error))
             setError(true)
             setLoading(false)
         }
@@ -64,6 +64,7 @@ const LogIn = () => {
                     {errors.password ? <p className='error'>Your password should be more than 4 characters.</p> : ""}
                 </div>
                 <Buttons title="Log in" type="submit" loading={loading} buttonClass="primary-button" />
+                <p className="_" >New User? <span className="link" onClick={()=>history.push('/')} >Sign Up</span> </p>
             </form>
         </div>
     )

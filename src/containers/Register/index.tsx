@@ -47,7 +47,7 @@ const Register = () => {
                 }
             )
         }catch(error){
-            setErrorMessage(error)
+            setErrorMessage(JSON.stringify(error))
             setError(true)
             setLoading(false)
         }
@@ -64,12 +64,13 @@ const Register = () => {
 
     return(
         <div className="register auth" onSubmit={handleSubmit(onSubmit)} >
+            <h1>Register</h1>
             <form>
                 
                 {error ? <p className="error alert">{errorMessage}</p> : '' }
 
                 <div className={`inputGroup ${errors.displayName ? "error" : '' }`}>
-                    <label>Full Name</label><br/>
+                    <label>Display Name</label><br/>
                     <input type="text" placeholder="John Doe" {...register('displayName', {required: true, minLength: 5})} />
                     {errors.displayName ? <p className='error'>Your full name should be more than 5 characters.</p> : ""}
                 </div>
@@ -84,6 +85,7 @@ const Register = () => {
                     {errors.password ? <p className='error'>Your password should be more than 4 characters.</p> : ""}
                 </div>
                 <Buttons title="Register" type="submit" loading={loading} buttonClass="primary-button" />
+                <p className="_" >Already have an account? <span className="link" onClick={()=>history.push('/login')} >Login</span> </p>
             </form>
         </div>
     )

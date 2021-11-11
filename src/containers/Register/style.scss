@@ -3,4 +3,14 @@
   padding: 2rem;
   min-width: 25rem;
   background: white;
+
+  ._{
+    margin: 20px;
+    text-align: center;
+
+    .link{
+      cursor: pointer;
+      color: red;
+    }
+  }
 }
