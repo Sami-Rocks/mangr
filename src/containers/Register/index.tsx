@@ -47,7 +47,7 @@ const Register = () => {
                 }
             )
         }catch(error){
-            setErrorMessage(JSON.stringify(error))
+            setErrorMessage(JSON.stringify(error.message))
             setError(true)
             setLoading(false)
         }

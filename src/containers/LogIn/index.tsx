@@ -30,7 +30,7 @@ const LogIn = () => {
             history.push('/dashboard')
             setLoading(false)
         }catch(error){
-            setErrorMessage( JSON.stringify(error))
+            setErrorMessage( JSON.stringify(error.message))
             setError(true)
             setLoading(false)
         }
