@@ -225,7 +225,9 @@ const Dashboard = () =>{
                         {currentProject.projectName ? currentProject.projectName : 'Please create a project' }
                     </h1>
                     <p className="project-description">{desc()}</p>
-                    <Buttons title="Add Task +" type="button" buttonClass="blue add-button logout" clickEvent={()=>handleModal('card', 'backlog')} />
+                    { Object.keys(currentProject).length > 0 &&
+                        <Buttons title="Add Task +" type="button" buttonClass="blue add-button logout" clickEvent={()=>handleModal('card', 'backlog')} />
+                     }
                 </div>
             </div>
             <div className="project-collaborators"></div>
